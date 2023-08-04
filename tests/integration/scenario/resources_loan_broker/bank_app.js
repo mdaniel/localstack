@@ -8,12 +8,9 @@
  */
 
 function calcRate(amount, term, score, history) {
-    console.log("MAX_LOAN_AMOUNT=%d, MIN_CREDIT_SCORE=%d, BASE_RATE=%d", process.env.MAX_LOAN_AMOUNT, process.env.MIN_CREDIT_SCORE, process.env.BASE_RATE)
     if (amount <= process.env.MAX_LOAN_AMOUNT && score >= process.env.MIN_CREDIT_SCORE) {
-        console.log("calculating amount...")
         return parseFloat(process.env.BASE_RATE) + history * ((1000 - score) / 100.0);
     }
-    console.log("could not calculate...")
 }
 
 exports.handler = async (event) => {
@@ -30,10 +27,11 @@ exports.handler = async (event) => {
     console.log("Loan Request over %d at credit score %d", amount, score);
     console.log("Received term: %d, history: %d", term, history);
     const rate = calcRate(amount, term, score, history);
-    console.log("calculated rate = " + rate);
     if (rate) {
         const response = { rate: rate, bankId: bankId };
         console.log(response);
         return response;
+    } else {
+        console.log("Rejecting Loan");
     }
 };

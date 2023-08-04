@@ -2,8 +2,24 @@ const { DynamoDBClient, UpdateItemCommand } = require("@aws-sdk/client-dynamodb"
 const { unmarshall } = require("@aws-sdk/util-dynamodb");
 const { SFNClient, SendTaskSuccessCommand } = require("@aws-sdk/client-sfn");
 
-const dynamodb = new DynamoDBClient({ apiVersion: "2012-08-10" });
-const sfn = new SFNClient();
+//const dynamodb = new DynamoDBClient({ apiVersion: "2012-08-10" });
+//const sfn = new SFNClient();
+
+let sfn;
+let dynamodb;
+if (process.env.LOCALSTACK_HOSTNAME) {
+  const localStackConfig = {
+    endpoint: `http://${process.env.LOCALSTACK_HOSTNAME}:${process.env.EDGE_PORT}`,
+    region: 'us-east-1', // Change the region as per your setup
+    apiVersion: "2012-08-10"
+  };
+  dynamodb = new  DynamoDBClient(localStackConfig);
+  sfn = new SFNClient(localStackConfig)
+} else {
+  // Use the default AWS configuration
+  dynamodb = new DynamoDBClient({apiVersion: "2012-08-10"});
+  sfn = new SFNClient();
+}
 
 const mortgageQuotesTable = process.env.MORTGAGE_QUOTES_TABLE;
 
@@ -38,7 +54,7 @@ const createAppendQuoteUpdateItemCommand = (tableName, id, quote) =>
 
 
 exports.handler = async (event) => {
-    console.info("Received event:", JSON.stringify(event, null, 4));
+    console.info("Received event:", JSON.stringify(event));
     console.info("Processing %d records", event["Records"].length);
 
     var persistedMortgageQuotes;
@@ -46,7 +62,7 @@ exports.handler = async (event) => {
         console.debug(record);
 
         var quote = JSON.parse(record["body"]);
-        console.info("Persisting quote: %s", JSON.stringify(quote, null, 4));
+        console.info("Persisting quote: %s", JSON.stringify(quote));
 
         var id = quote["id"];
         var taskToken = quote["taskToken"];
