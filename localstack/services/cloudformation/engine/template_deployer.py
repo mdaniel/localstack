@@ -953,6 +953,7 @@ class TemplateDeployer:
         for change in changes:
             res_action = change["ResourceChange"]["Action"]
             #  we need to resolve refs before diffing to detect if for example a parameter causes the change or not
+            # FIXME: this now causes issues because we might not be able to resolve everything yet
             resource = new_resources.get(change["ResourceChange"]["LogicalResourceId"])
             resource = resolve_refs_recursively(
                 self.stack_name,

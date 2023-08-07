@@ -200,7 +200,7 @@ class SQSQueueProvider(ResourceProvider[SQSQueueProperties]):
             model["QueueUrl"] = sqs.create_queue(QueueName=request.desired_state.get("QueueName"))[
                 "QueueUrl"
             ]
-            model["QueueArn"] = sqs.get_queue_attributes(
+            model["Arn"] = sqs.get_queue_attributes(
                 QueueUrl=model["QueueUrl"], AttributeNames=["QueueArn"]
             )["Attributes"]["QueueArn"]
         return ProgressEvent(OperationStatus.SUCCESS, resource_model=model)
