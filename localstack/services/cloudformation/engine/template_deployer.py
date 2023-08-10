@@ -955,14 +955,14 @@ class TemplateDeployer:
             #  we need to resolve refs before diffing to detect if for example a parameter causes the change or not
             # FIXME: this now causes issues because we might not be able to resolve everything yet
             resource = new_resources.get(change["ResourceChange"]["LogicalResourceId"])
-            resource = resolve_refs_recursively(
-                self.stack_name,
-                self.resources,
-                self.mappings,
-                self.stack.resolved_conditions,
-                self.stack.resolved_parameters,
-                resource,
-            )
+            # resource = resolve_refs_recursively(
+            #     self.stack_name,
+            #     self.resources,
+            #     self.mappings,
+            #     self.stack.resolved_conditions,
+            #     self.stack.resolved_parameters,
+            #     resource,
+            # )
             if res_action in ["Add", "Remove"] or self.resource_config_differs(resource):
                 contains_changes = True
             # if res_action in ["Modify", "Add"]:
