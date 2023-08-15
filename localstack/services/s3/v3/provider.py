@@ -1283,6 +1283,12 @@ class S3Provider(S3Api, ServiceLifecycleHook):
         # sort by key
         all_objects.sort(key=lambda r: r.key)
         for s3_object in all_objects:
+            if count >= max_keys:
+                is_truncated = True
+                if s3_objects:
+                    next_key_marker = s3_objects[-1]["Key"]
+                break
+
             key = urlparse.quote(s3_object.key)
             # skip all keys that alphabetically come before key_marker
             if marker:
@@ -1319,10 +1325,6 @@ class S3Provider(S3Api, ServiceLifecycleHook):
             s3_objects.append(object_data)
 
             count += 1
-            if count > max_keys:
-                is_truncated = True
-                next_key_marker = s3_object.key
-                break
 
         common_prefixes = [CommonPrefix(Prefix=prefix) for prefix in sorted(common_prefixes)]
 
