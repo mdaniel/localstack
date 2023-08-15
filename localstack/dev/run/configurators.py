@@ -163,13 +163,22 @@ class ConfigEnvironmentConfigurator:
         self.env_args = env_args
 
     def __call__(self, cfg: ContainerConfiguration):
-        if self.pro:
-            from localstack_ext import config as config_ext  # noqa
-
         if cfg.env_vars is None:
             cfg.env_vars = {}
 
+        if self.pro:
+            from localstack_ext import config as config_ext  # noqa
+
+        # set env vars from config
         for env_var in config.CONFIG_ENV_VARS:
             value = os.environ.get(env_var, None)
             if value is not None:
                 cfg.env_vars[env_var] = value
+
+        # add extra env vars
+        for kv in self.env_args:
+            kv = kv.split("=", maxsplit=1)
+            k = kv[0]
+            v = kv[1] if len(kv) == 2 else os.environ.get(k)
+            if v is not None:
+                cfg.env_vars[k] = v
