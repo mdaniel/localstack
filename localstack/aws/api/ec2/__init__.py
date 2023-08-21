@@ -8217,6 +8217,15 @@ class CreateVpcEndpointConnectionNotificationResult(TypedDict, total=False):
     ClientToken: Optional[String]
 
 
+class SubnetConfiguration(TypedDict, total=False):
+    SubnetId: Optional[SubnetId]
+    Ipv4: Optional[String]
+    Ipv6: Optional[String]
+
+
+SubnetConfigurationsList = List[SubnetConfiguration]
+
+
 class DnsOptionsSpecification(TypedDict, total=False):
     DnsRecordIpType: Optional[DnsRecordIpType]
     PrivateDnsOnlyForInboundResolverEndpoint: Optional[Boolean]
@@ -8241,6 +8250,7 @@ class CreateVpcEndpointRequest(ServiceRequest):
     ClientToken: Optional[String]
     PrivateDnsEnabled: Optional[Boolean]
     TagSpecifications: Optional[TagSpecificationList]
+    SubnetConfigurations: Optional[SubnetConfigurationsList]
 
 
 class LastError(TypedDict, total=False):
@@ -16260,6 +16270,7 @@ class ModifyVpcEndpointRequest(ServiceRequest):
     IpAddressType: Optional[IpAddressType]
     DnsOptions: Optional[DnsOptionsSpecification]
     PrivateDnsEnabled: Optional[Boolean]
+    SubnetConfigurations: Optional[SubnetConfigurationsList]
 
 
 class ModifyVpcEndpointResult(TypedDict, total=False):
@@ -18994,6 +19005,7 @@ class Ec2Api:
         client_token: String = None,
         private_dns_enabled: Boolean = None,
         tag_specifications: TagSpecificationList = None,
+        subnet_configurations: SubnetConfigurationsList = None,
     ) -> CreateVpcEndpointResult:
         raise NotImplementedError
 
@@ -23119,6 +23131,7 @@ class Ec2Api:
         ip_address_type: IpAddressType = None,
         dns_options: DnsOptionsSpecification = None,
         private_dns_enabled: Boolean = None,
+        subnet_configurations: SubnetConfigurationsList = None,
     ) -> ModifyVpcEndpointResult:
         raise NotImplementedError
 
