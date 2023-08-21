@@ -39,7 +39,9 @@ class LambdaFunction(GenericBaseModel):
 
     def update_resource(self, new_resource, stack_name, resources):
         props = new_resource["Properties"]
-        function_name = props.get("FunctionName") or new_resource["_last_deployed_state"]["FunctionName"]
+        function_name = (
+            props.get("FunctionName") or new_resource["_last_deployed_state"]["FunctionName"]
+        )
         client = connect_to().lambda_
         config_keys = [
             "Description",
@@ -62,9 +64,7 @@ class LambdaFunction(GenericBaseModel):
         if "Code" in props:
             code = props["Code"] or {}
             if not code.get("ZipFile"):
-                LOG.debug(
-                    'Updating code for Lambda "%s" from location: %s', function_name, code
-                )
+                LOG.debug('Updating code for Lambda "%s" from location: %s', function_name, code)
             code = LambdaFunction.get_lambda_code_param(
                 props,
                 new_resource["LogicalResourceId"],
@@ -78,7 +78,7 @@ class LambdaFunction(GenericBaseModel):
             update_config_props["Environment"]["Variables"] = {
                 k: str(v) for k, v in environment_variables.items()
             }
-        result =  client.update_function_configuration(**update_config_props)
+        result = client.update_function_configuration(**update_config_props)
         connect_to().lambda_.get_waiter("function_updated_v2").wait(FunctionName=function_name)
         return result
 
@@ -131,7 +131,6 @@ class LambdaFunction(GenericBaseModel):
 
     @staticmethod
     def get_deploy_templates():
-
         def get_environment_params(
             properties: dict, logical_resource_id: str, resource: dict, stack_name: str
         ):
@@ -149,6 +148,7 @@ class LambdaFunction(GenericBaseModel):
                 FunctionName=result["FunctionArn"]
             )
             import time
+
             time.sleep(2)
 
         return {
@@ -175,7 +175,10 @@ class LambdaFunction(GenericBaseModel):
                 "types": {"Timeout": int, "MemorySize": int},
                 "result_handler": _handle_result,
             },
-            "delete": {"function": "delete_function", "parameters": {"FunctionName": "FunctionName"}},
+            "delete": {
+                "function": "delete_function",
+                "parameters": {"FunctionName": "FunctionName"},
+            },
         }
 
 
@@ -200,7 +203,9 @@ class LambdaFunctionVersion(GenericBaseModel):
         def _handle_result(result: dict, logical_resource_id: str, resource: dict):
             resource["Properties"]["Version"] = result["Version"]
             resource["PhysicalResourceId"] = result["FunctionArn"]
-            connect_to().lambda_.get_waiter("published_version_active").wait(FunctionName=result["FunctionName"], Qualifier=result["Version"])
+            connect_to().lambda_.get_waiter("published_version_active").wait(
+                FunctionName=result["FunctionName"], Qualifier=result["Version"]
+            )
 
         return {
             "create": {
